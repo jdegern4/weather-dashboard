@@ -4,67 +4,65 @@ var citySearchEl = document.querySelector("#city-search");
 var searchBtnEl = document.querySelector("#search-btn");
 var historyEl = document.querySelector("#search-history");
 var historyBtnEl = document.querySelectorAll(".history-btn");
-console.log(historyBtnEl);
 var cityNameEl = document.querySelector("#city-name");
 
-var getWeather = function() {
+var getWeather = function () {
     var citySearched = citySearchEl.value.trim();
     // FORMAT URL FOR CITY SEARCHED
     var cityURL = "https://api.openweathermap.org/geo/1.0/direct?q=" + citySearched + "&limit=5&appid=22b259ffc5bac79b608f3999db90154e"
     fetch(cityURL)
-    .then(function(response) {
-        if (response.ok) {
-            response.json().then(function(data) {
-                console.log(data);
-                // POPULATE CITY NAME IN CURRENT WEATHER BOX
-                cityNameEl.textContent = data[0].name + ", " + data[0].state + " (" + moment().format('l') + ")";
+        .then(function (response) {
+            if (response.ok) {
+                response.json().then(function (data) {
+                    console.log(data);
+                    // POPULATE CITY NAME IN CURRENT WEATHER BOX
+                    cityNameEl.textContent = data[0].name + ", " + data[0].state + " (" + moment().format('l') + ")";
 
-                // GET COORDINATES OF CITY SEARCHED FROM API
-                var searchLat = data[0].lat;
-                var searchLon = data[0].lon;
-                var latLonURL = "https://api.openweathermap.org/data/2.5/onecall?lat=" + searchLat + "&lon=" + searchLon + "&appid=22b259ffc5bac79b608f3999db90154e&units=imperial"
-                fetch(latLonURL)
-                .then(function(response) {
-                    if (response.ok) {
-                        response.json().then(function(data) {
-                            displayWeather(data);
-                            displayFutureWeather(data);
+                    // GET COORDINATES OF CITY SEARCHED FROM API
+                    var searchLat = data[0].lat;
+                    var searchLon = data[0].lon;
+                    var latLonURL = "https://api.openweathermap.org/data/2.5/onecall?lat=" + searchLat + "&lon=" + searchLon + "&appid=22b259ffc5bac79b608f3999db90154e&units=imperial"
+                    fetch(latLonURL)
+                        .then(function (response) {
+                            if (response.ok) {
+                                response.json().then(function (data) {
+                                    displayWeather(data);
+                                    displayFutureWeather(data);
+                                })
+                            } else {
+                                alert("City not found.");
+                            }
                         })
-                    } else {
-                        alert("City not found.");
-                    }
-                })
-                .catch(function(error) {
-                    alert("Unable to connect to weather.");
-                })
-            });
-        } else {
-            alert("City not found.");
-        }
-    })
-    .catch(function(error) {
-        alert("Unable to connect to weather.");
-    })
+                        .catch(function (error) {
+                            alert("Unable to connect to weather.");
+                        })
+                });
+            } else {
+                alert("City not found.");
+            }
+        })
+        .catch(function (error) {
+            alert("Unable to connect to weather.");
+        })
 
-    
+
 };
 
-var displayWeather = function(data) {
+var displayWeather = function (data) {
     console.log(data);
     // ADD ICON FOR CURRENT WEATHER NEXT TO CITY NAME AND DATE
     var currentIconEl = document.querySelector("#current-icon");
     var iconCode = data.current.weather[0].icon;
     var iconURL = "http://openweathermap.org/img/wn/" + iconCode + "@2x.png";
     currentIconEl.setAttribute("src", iconURL);
-    
+
 
     // DISPLAY CURRENT TEMPERATURE, WIND SPEED, HUMIDITY, And UV INDEX
     var tempEl = document.querySelector("#temp");
     var windEl = document.querySelector("#wind");
     var humidityEl = document.querySelector("#humidity");
     var uvEl = document.querySelector("#uv");
-    var uvIndex = document.createElement("span");
-    uvIndex.classList.add("badge");
+    var uvIndex = document.querySelector("#current-uv");
     tempEl.textContent = "Temp: " + data.current.temp + "° F";
     windEl.textContent = "Wind: " + data.current.wind_speed + " mph";
     humidityEl.textContent = "Humidity: " + data.current.humidity + "%";
@@ -80,7 +78,7 @@ var displayWeather = function(data) {
 
 };
 
-var displayFutureWeather = function(data) {
+var displayFutureWeather = function (data) {
     var futureDayEl = document.querySelectorAll(".five-day-box");
     // LOOP OVER EACH FUTURE DAY CARD
     for (var i = 0; i < 5; i++) {
@@ -100,15 +98,15 @@ var displayFutureWeather = function(data) {
         futureTempEl.textContent = "Temp: " + data.daily[futureIndex].temp.day + "° F";
         futureWindEl.textContent = "Wind: " + data.daily[futureIndex].wind_speed + " mph";
         futureHumidityEl.textContent = "Humidity: " + data.daily[futureIndex].humidity + "%";
-        
+
     };
 };
 
-var searchBtnHandler = function(event) {
+var searchBtnHandler = function (event) {
     event.preventDefault();
 
     var citySearched = citySearchEl.value.trim();
-    
+
     if (citySearched) {
         getWeather(citySearched);
     } else {
@@ -124,9 +122,15 @@ var searchBtnHandler = function(event) {
     historyBtnEl[2].innerHTML = historyBtnEl[1].innerHTML;
     historyBtnEl[1].innerHTML = historyBtnEl[0].innerHTML;
     historyBtnEl[0].innerHTML = citySearched;
+
+    for (var i = 0; i < 8; i++) {
+        if (historyBtnEl[i].innerHTML) {
+            historyBtnEl[i].classList.remove("visually-hidden");
+        }
+    }
 };
 
-var historyBtnHandler = function(event) {
+var historyBtnHandler = function (event) {
     event.preventDefault();
     console.log("you clicked on a piece of history!");
     var historyBtnText = event.target.innerHTML;
