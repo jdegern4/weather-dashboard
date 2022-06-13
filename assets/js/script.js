@@ -2,19 +2,19 @@
 
 var citySearchEl = document.querySelector("#city-search");
 var searchBtnEl = document.querySelector("#search-btn");
+var cityNameEl = document.querySelector("#city-name");
 
 var getWeather = function() {
     var citySearched = citySearchEl.value.trim();
     // FORMAT URL FOR CITY SEARCHED
-    var cityURL = "http://api.openweathermap.org/geo/1.0/direct?q=" + citySearched + "&limit=5&appid=22b259ffc5bac79b608f3999db90154e"
+    var cityURL = "https://api.openweathermap.org/geo/1.0/direct?q=" + citySearched + "&limit=5&appid=22b259ffc5bac79b608f3999db90154e"
     fetch(cityURL)
     .then(function(response) {
         if (response.ok) {
             response.json().then(function(data) {
                 console.log(data);
                 // POPULATE CITY NAME IN CURRENT WEATHER BOX
-                var cityNameEl = document.querySelector("#city-name");
-                cityNameEl.textContent = data[0].name + ", " + data[0].state
+                cityNameEl.textContent = data[0].name + ", " + data[0].state + " (" + moment().format('l') + ")";
 
                 // GET COORDINATES OF CITY SEARCHED FROM API
                 var searchLat = data[0].lat;
@@ -25,6 +25,7 @@ var getWeather = function() {
                     if (response.ok) {
                         response.json().then(function(data) {
                             displayWeather(data);
+                            displayFutureWeather(data);
                         })
                     } else {
                         alert("City not found.");
@@ -47,13 +48,20 @@ var getWeather = function() {
 
 var displayWeather = function(data) {
     console.log(data);
+    // ADD ICON FOR CURRENT WEATHER NEXT TO CITY NAME AND DATE
+    var currentIconEl = document.querySelector("#current-icon");
+    var iconCode = data.current.weather[0].icon;
+    var iconURL = "http://openweathermap.org/img/wn/" + iconCode + "@2x.png";
+    currentIconEl.setAttribute("src", iconURL);
+    
+
+    // DISPLAY CURRENT TEMPERATURE, WIND SPEED, HUMIDITY, And UV INDEX
     var tempEl = document.querySelector("#temp");
     var windEl = document.querySelector("#wind");
     var humidityEl = document.querySelector("#humidity");
     var uvEl = document.querySelector("#uv");
     var uvIndex = document.createElement("span");
     uvIndex.classList.add("badge");
-    // var currentTemp = data.main.temp;
     tempEl.textContent = "Temp: " + data.current.temp + "° F";
     windEl.textContent = "Wind: " + data.current.wind_speed + " mph";
     humidityEl.textContent = "Humidity: " + data.current.humidity + "%";
@@ -69,12 +77,35 @@ var displayWeather = function(data) {
 
 };
 
+var displayFutureWeather = function(data) {
+    var futureDayEl = document.querySelectorAll(".five-day-box");
+    // LOOP OVER EACH FUTURE DAY CARD
+    for (var i = 0; i < 5; i++) {
+        // SET VARIABLE FOR GETTING CORRECT DAY'S WEATHER FROM ARRAY
+        var futureIndex = i + 1;
+        // GET HTML ELEMENTS FOR FUTURE DAY CARD
+        var futureDateEl = futureDayEl[i].querySelector(".future-date");
+        var futureIconEl = futureDayEl[i].querySelector(".future-icon");
+        var futureIconCode = data.daily[futureIndex].weather[0].icon;
+        var futureIconURL = "http://openweathermap.org/img/wn/" + futureIconCode + "@2x.png";
+        var futureTempEl = futureDayEl[i].querySelector(".future-temp");
+        var futureWindEl = futureDayEl[i].querySelector(".future-wind");
+        var futureHumidityEl = futureDayEl[i].querySelector(".future-humidity");
+
+        futureDateEl.textContent = moment().add(futureIndex, 'days').format('l');
+        futureIconEl.setAttribute("src", futureIconURL);
+        futureTempEl.textContent = "Temp: " + data.daily[futureIndex].temp.day + "° F";
+        futureWindEl.textContent = "Wind: " + data.daily[futureIndex].wind_speed + " mph";
+        futureHumidityEl.textContent = "Humidity: " + data.daily[futureIndex].humidity + "%";
+        
+    };
+};
+
 var searchBtnHandler = function(event) {
     event.preventDefault();
 
     var citySearched = citySearchEl.value.trim();
-    console.log(citySearched);
-
+    
     if (citySearched) {
         getWeather(citySearched);
     } else {
