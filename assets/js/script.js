@@ -2,6 +2,9 @@
 
 var citySearchEl = document.querySelector("#city-search");
 var searchBtnEl = document.querySelector("#search-btn");
+var historyEl = document.querySelector("#search-history");
+var historyBtnEl = document.querySelectorAll(".history-btn");
+console.log(historyBtnEl);
 var cityNameEl = document.querySelector("#city-name");
 
 var getWeather = function() {
@@ -111,6 +114,28 @@ var searchBtnHandler = function(event) {
     } else {
         alert("Please enter a city.");
     }
+
+    // ADD BUTTON WITH CITY SEARCHED TO SEARCH HISTORY
+    historyBtnEl[7].innerHTML = historyBtnEl[6].innerHTML;
+    historyBtnEl[6].innerHTML = historyBtnEl[5].innerHTML;
+    historyBtnEl[5].innerHTML = historyBtnEl[4].innerHTML;
+    historyBtnEl[4].innerHTML = historyBtnEl[3].innerHTML;
+    historyBtnEl[3].innerHTML = historyBtnEl[2].innerHTML;
+    historyBtnEl[2].innerHTML = historyBtnEl[1].innerHTML;
+    historyBtnEl[1].innerHTML = historyBtnEl[0].innerHTML;
+    historyBtnEl[0].innerHTML = citySearched;
+};
+
+var historyBtnHandler = function(event) {
+    event.preventDefault();
+    console.log("you clicked on a piece of history!");
+    var historyBtnText = event.target.innerHTML;
+    console.log(historyBtnText);
+    citySearchEl.value = historyBtnText;
+    getWeather();
 };
 
 searchBtnEl.addEventListener("click", searchBtnHandler);
+for (var i = 0; i < historyBtnEl.length; i++) {
+    historyBtnEl[i].addEventListener("click", historyBtnHandler, false);
+};
