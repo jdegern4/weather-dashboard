@@ -6,6 +6,14 @@ var historyEl = document.querySelector("#search-history");
 var historyBtnEl = document.querySelectorAll(".history-btn");
 var cityNameEl = document.querySelector("#city-name");
 
+var loadHistory = function() {
+
+};
+
+var saveHistory = function() {
+    localStorage.setItem()
+}
+
 var getWeather = function () {
     var citySearched = citySearchEl.value.trim();
     // FORMAT URL FOR CITY SEARCHED
@@ -126,7 +134,8 @@ var searchBtnHandler = function (event) {
     for (var i = 0; i < 8; i++) {
         if (historyBtnEl[i].innerHTML) {
             historyBtnEl[i].classList.remove("visually-hidden");
-        }
+        };
+        localStorage.setItem(i, historyBtnEl[i].innerHTML);
     }
 };
 
@@ -139,7 +148,17 @@ var historyBtnHandler = function (event) {
     getWeather();
 };
 
+for (var i = 0; i < 8; i++) {
+    historyBtnEl[i].innerHTML = localStorage.getItem(i);
+    if (historyBtnEl[i].innerHTML) {
+        historyBtnEl[i].classList.remove("visually-hidden");
+    };
+}
+
+// LISTEN FOR CLICK ON SEARCH BUTTON
 searchBtnEl.addEventListener("click", searchBtnHandler);
+
+// LISTEN FOR CLICK ON SEARCH HISTORY BUTTONS
 for (var i = 0; i < historyBtnEl.length; i++) {
     historyBtnEl[i].addEventListener("click", historyBtnHandler, false);
 };
